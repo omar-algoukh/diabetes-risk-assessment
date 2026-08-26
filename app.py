@@ -12,7 +12,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 2. Custom CSS for Clean Medical Theme
+# 2. Custom CSS
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -85,13 +85,28 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 3. Model Training Function
+# 3. Model Training Function with Robust Data Cleaning
 @st.cache_resource
 def load_and_train():
     dataset_file = 'diabetes_risk.csv'
+    df = None
+
     if os.path.exists(dataset_file):
-        df = pd.read_csv(dataset_file)
-    else:
+        try:
+            temp_df = pd.read_csv(dataset_file)
+            # Clean numeric columns
+            for col in temp_df.columns:
+                temp_df[col] = pd.to_numeric(temp_df[col], errors='coerce')
+            temp_df = temp_df.dropna()
+            
+            target_cols = [c for c in temp_df.columns if c.lower() in ['outcome', 'target', 'diabetes', 'class']]
+            if len(target_cols) > 0 and len(temp_df) > 10:
+                df = temp_df
+        except Exception:
+            df = None
+
+    # Fallback Dataset if CSV reading/cleaning fails
+    if df is None or df.empty:
         np.random.seed(42)
         n = 500
         df = pd.DataFrame({
@@ -102,11 +117,14 @@ def load_and_train():
             'Insulin': np.random.normal(80, 40, n).clip(0, 300),
             'Outcome': np.random.choice([0, 1], size=n, p=[0.65, 0.35])
         })
-    
-    feature_cols = [c for c in df.columns if c.lower() != 'outcome']
-    X = df[feature_cols]
-    y = df['Outcome'] if 'Outcome' in df.columns else df.iloc[:, -1]
-    
+
+    target_cols = [c for c in df.columns if c.lower() in ['outcome', 'target', 'diabetes', 'class']]
+    target_name = target_cols[0] if target_cols else df.columns[-1]
+
+    feature_cols = [c for c in df.columns if c != target_name]
+    X = df[feature_cols].astype(float)
+    y = df[target_name].astype(int)
+
     model = RandomForestClassifier(n_estimators=100, random_state=42)
     model.fit(X, y)
     return model, feature_cols
@@ -116,7 +134,7 @@ model, feature_names = load_and_train()
 # 4. Header Section
 st.markdown("""
     <div class="main-header">
-        <div class="main-title">Diabetes Risk Assessment</div>
+        <div class="main-title">Diabetes Risk Analytics</div>
         <div class="main-subtitle">Clinical predictive model based on metabolic health indicators</div>
     </div>
 """, unsafe_allow_html=True)
@@ -156,15 +174,15 @@ if st.button("Calculate Assessment"):
     input_data = {}
     for col in feature_names:
         c = col.lower()
-        if 'glucose' in c: input_data[col] = glucose
-        elif 'bmi' in c: input_data[col] = bmi
-        elif 'age' in c: input_data[col] = age
-        elif 'blood' in c or 'bp' in c: input_data[col] = bp
-        elif 'insulin' in c: input_data[col] = insulin
-        elif 'pregnan' in c: input_data[col] = pregnancies
-        elif 'skin' in c: input_data[col] = skin
-        elif 'pedigree' in c or 'dpf' in c: input_data[col] = dpf
-        else: input_data[col] = 0
+        if 'glucose' in c: input_data[col] = float(glucose)
+        elif 'bmi' in c: input_data[col] = float(bmi)
+        elif 'age' in c: input_data[col] = float(age)
+        elif 'blood' in c or 'bp' in c: input_data[col] = float(bp)
+        elif 'insulin' in c: input_data[col] = float(insulin)
+        elif 'pregnan' in c: input_data[col] = float(pregnancies)
+        elif 'skin' in c: input_data[col] = float(skin)
+        elif 'pedigree' in c or 'dpf' in c: input_data[col] = float(dpf)
+        else: input_data[col] = 0.0
 
     input_df = pd.DataFrame([input_data])
     prob = model.predict_proba(input_df)[0][1] * 100
