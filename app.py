@@ -181,10 +181,10 @@ st.markdown("""
 
 # 4. Sidebar Information
 with st.sidebar:
-    st.markdown("### 📊 Model Architecture")
-    st.write("""
-    This platform utilizes a **Random Forest Classifier (300 estimators)** with automated data imputation, robust scaling, and derived biomarker interactions.
-    """)
+    # st.markdown("### 📊 Model Architecture")
+    # st.write("""
+    # This platform utilizes a **Random Forest Classifier (300 estimators)** with automated data imputation, robust scaling, and derived biomarker interactions.
+    # """)
     st.divider()
     st.caption("🔒 Privacy Notice: Input data is processed in real-time and is not retained or stored.")
     st.caption("⚠️ Disclaimer: For screening purposes only. Consult a clinician for diagnostic testing.")
