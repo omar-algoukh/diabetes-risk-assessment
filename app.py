@@ -253,15 +253,21 @@ if submitted:
         risk_class = "res-low"
         if "mod" in prediction.lower(): risk_class = "res-mod"
         elif "high" in prediction.lower(): risk_class = "res-high"
-        
         st.markdown(f"""
-            <div class="result-container {risk_class}">
-                <div style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.9;">Predicted Risk Level</div>
-                <div style="font-size: 2.2rem; font-weight: 800; margin: 0.3rem 0;">{prediction}</div>
-                <div style="font-size: 0.85rem; opacity: 0.9;">Model Certainty Score: {confidence:.1f}%</div>
-            </div>
-        """, unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+    <div class="result-container {risk_class}">
+        <div style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.9;">Predicted Risk Level</div>
+        <div style="font-size: 2.2rem; font-weight: 800; margin: 0.3rem 0;">{prediction}</div>
+    </div>
+    """, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+        # st.markdown(f"""
+        #     <div class="result-container {risk_class}">
+        #         <div style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.9;">Predicted Risk Level</div>
+        #         <div style="font-size: 2.2rem; font-weight: 800; margin: 0.3rem 0;">{prediction}</div>
+        #         <div style="font-size: 0.85rem; opacity: 0.9;">Model Certainty Score: {confidence:.1f}%</div>
+        #     </div>
+        # """, unsafe_allow_html=True)
+        # st.markdown('</div>', unsafe_allow_html=True)
 
     with res_col2:
         st.markdown('<div class="card-box">', unsafe_allow_html=True)
